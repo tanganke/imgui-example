@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "external/glad/include",
+                "/usr/local/include/imgui"
+            ],
+            "defines": []
+        }
+    ],
+    "version": 4
+}
