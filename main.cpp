@@ -1,11 +1,14 @@
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 // #define IGL_VIEWER_VIEWER_QUIET
 #include <igl/opengl/glfw/Viewer.h>
+#include <igl/opengl/glfw/imgui/ImGuiMenu.h>
+#include <igl/opengl/glfw/imgui/ImGuiHelpers.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
 #include <imgui.h>
@@ -13,63 +16,47 @@
 #include <imgui_impl_opengl3.cpp>
 #include <imgui_impl_opengl3.h>
 
-GLFWwindow *window;
+#include <implot/implot.h>
 
-igl::opengl::glfw::Viewer init_window()
-{
-    igl::opengl::glfw::Viewer viewer;
-    viewer.launch_init(true, false, "imgui-example");
-    return viewer;
-}
+#include "gl_draw.h"
+#include "imgui_draw.h"
+
+igl::opengl::glfw::Viewer viewer;
+GLFWwindow *window;
+double prev_frame_time, current_frame_time;
 
 int main()
 {
-    auto viewer = init_window();
+    igl::opengl::glfw::imgui::ImGuiMenu imgui_plugin;
+    viewer.plugins.push_back(&imgui_plugin);
+    viewer.launch_init(true, false, "imgui-example");
     window = viewer.window;
+    ImPlot::CreateContext();
 
-    auto setup_imgui = []() {
-        // Setup Dear ImGui context
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
-        ImGuiIO &io = ImGui::GetIO();
-        (void)io;
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-        //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-        // Setup Dear ImGui style
-        ImGui::StyleColorsDark();
-        //ImGui::StyleColorsClassic();
-
-        // Setup Platform/Renderer backends
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
-        ImGui_ImplOpenGL3_Init("#version 330");
+    // Add content to the default menu window
+    imgui_plugin.callback_draw_viewer_window = [&]() {
+        // Draw parent menu content
+        // imgui_plugin.draw_viewer_menu();
     };
-    setup_imgui();
 
-    glClearColor(0, 0, 0, 0);
-    glEnable(GL_DEPTH_TEST);
+    imgui_plugin.callback_draw_custom_window = []() {
+        imgui_draw();
+    };
+    
+    imgui_init();
+    gl_init();
+    
+    current_frame_time = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        prev_frame_time = current_frame_time;
+        current_frame_time = glfwGetTime();
+
         viewer.draw();
 
-        // Start the Dear ImGui frame
-        static auto imgui_newframe = []() {
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-        };
-        imgui_newframe();
+        // draw other stuff here
+        gl_draw();
 
-        static auto imgui_render = []() {
-            {
-                ImGui::ShowDemoWindow();
-            }
-            ImGui::Render();
-        };
-        imgui_render();
-
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -82,6 +69,7 @@ int main()
     };
     imgui_cleanup();
 
+    ImPlot::DestroyContext();
     viewer.launch_shut();
     return 0;
 }

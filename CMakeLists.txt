@@ -17,5 +17,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
     ${CMAKE_SOURCE_DIR}/include
 )
 target_link_libraries(${PROJECT_NAME}
-    imgui imgui_impl_glfw igl glfw glad pthread
+    igl implot imgui imgui_impl_glfw 
+    glfw glad pthread
 )

@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/imgui-example.dir/gl_draw.cpp.o CMakeFiles/imgui-example.dir/imgui_draw.cpp.o CMakeFiles/imgui-example.dir/main.cpp.o  -o imgui-example  -ligl -limplot -limgui -limgui_impl_glfw -lglfw external/glad/libglad.a -lpthread -ldl 
